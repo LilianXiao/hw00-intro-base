@@ -97,9 +97,9 @@ function main() {
     custom.setNoiseFrag(2.5, 0.8, 2.0);
 
     renderer.render(camera, custom, [
-      //icosphere,
+      icosphere,
       //square,
-      cube
+      //cube
     ]);
     stats.end();
 

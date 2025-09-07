@@ -29,6 +29,13 @@ class ShaderProgram {
   unifModelInvTr: WebGLUniformLocation;
   unifViewProj: WebGLUniformLocation;
   unifColor: WebGLUniformLocation;
+  unifTime: WebGLUniformLocation;
+  unifAmp: WebGLUniformLocation;
+  unifFreq: WebGLUniformLocation;
+  unifSpeed: WebGLUniformLocation;
+  unifNoiseScale: WebGLUniformLocation;
+  unifNoiseStrength: WebGLUniformLocation;
+  unifNoiseSpeed: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -48,7 +55,37 @@ class ShaderProgram {
     this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
     this.unifColor      = gl.getUniformLocation(this.prog, "u_Color");
-  }
+    this.unifTime = gl.getUniformLocation(this.prog, "u_Time");
+    this.unifAmp = gl.getUniformLocation(this.prog, "u_Amp");
+    this.unifFreq = gl.getUniformLocation(this.prog, "u_Freq");
+    this.unifSpeed = gl.getUniformLocation(this.prog, "u_Speed");
+    this.unifNoiseScale = gl.getUniformLocation(this.prog, "u_NoiseScale");
+    this.unifNoiseStrength = gl.getUniformLocation(this.prog, "u_NoiseStrength");
+    this.unifNoiseSpeed = gl.getUniformLocation(this.prog, "u_NoiseSpeed");
+
+    }
+
+    setNoise(amp: number, freq: number, speed: number) {
+        this.use();
+        if (this.unifAmp !== -1) gl.uniform1f(this.unifAmp as WebGLUniformLocation, amp);
+        if (this.unifFreq !== -1) gl.uniform1f(this.unifFreq as WebGLUniformLocation, freq);
+        if (this.unifSpeed !== -1) gl.uniform1f(this.unifSpeed as WebGLUniformLocation, speed);
+    }
+
+    setNoiseFrag(scale: number, strength: number, speed: number) {
+        this.use();
+        if (this.unifNoiseScale !== -1) gl.uniform1f(this.unifNoiseScale as WebGLUniformLocation, scale);
+        if (this.unifNoiseStrength !== -1) gl.uniform1f(this.unifNoiseStrength as WebGLUniformLocation, strength);
+        if (this.unifNoiseSpeed !== -1) gl.uniform1f(this.unifNoiseSpeed as WebGLUniformLocation, speed);
+
+    }
+
+    setTime(t: number) {
+        this.use();
+        if (this.unifTime !== -1) {
+            gl.uniform1f(this.unifTime as WebGLUniformLocation, t);
+        }
+    }
 
   use() {
     if (activeProgram !== this.prog) {

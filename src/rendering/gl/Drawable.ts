@@ -62,6 +62,7 @@ abstract class Drawable {
   drawMode(): GLenum {
     return gl.TRIANGLES;
   }
+
 };
 
 export default Drawable;

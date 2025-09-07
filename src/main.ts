@@ -60,7 +60,7 @@ function main() {
   const camera = new Camera(vec3.fromValues(0, 0, 5), vec3.fromValues(0, 0, 0));
 
   const renderer = new OpenGLRenderer(canvas);
-  renderer.setClearColor(0.2, 0.2, 0.2, 1);
+    renderer.setClearColor(0.2, 0.2, 0.2, 1);
   gl.enable(gl.DEPTH_TEST);
 
   const lambert = new ShaderProgram([
@@ -68,24 +68,35 @@ function main() {
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
   ]);
 
-  //const custom = new ShaderProgram([
-  //  new Shader(gl.VERTEX_SHADER, require('./shaders/custom-vert.glsl')),
-  //  new Shader(gl.FRAGMENT_SHADER, require('./shaders/custom-frag.glsl'))
-  //]);
+  const custom = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/custom-vert.glsl')),
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/custom-frag.glsl'))
+  ]);
 
+    let t0 = performance.now();
   // This function will be called every frame
-  function tick() {
+    function tick() {
+
+    const now = performance.now();
+    const tSec = (now - t0) * 0.001;   // seconds since start
+
     camera.update();
     stats.begin();
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
+
     if(controls.tesselations != prevTesselations)
     {
       prevTesselations = controls.tesselations;
       icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, prevTesselations);
       icosphere.create();
-    }
-    renderer.render(camera, lambert, [
+        }
+
+    custom.setTime(tSec);
+    custom.setNoise(0.25, 8.0, 2.0);
+    custom.setNoiseFrag(2.5, 0.8, 2.0);
+
+    renderer.render(camera, custom, [
       //icosphere,
       //square,
       cube

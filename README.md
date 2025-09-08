@@ -5,6 +5,35 @@
 </p>
 <p align="center">(source: Ken Perlin)</p>
 
+## Link to live demo
+https://lilianxiao.github.io/hw00-intro-base/
+
+## Notes
+**Cube class:**
+I listed the normals and positions manually (24 normals specifically), then constructed a loop to calculate the indices (counterclockwise 0, 1, 2, 0, 2, 3 format).  I then created an instance of it in main and rendered it using Lambert.
+
+**Color controls:**
+I added 'color' to controls, then created a helper function that converts hex into vec4, since dat.GUI outputs color as a string (within, I did some regex and parsing to clean and convert the string).  I then added the color picker in main function, and ensured the color would update by doing lambert.setGeometryColor(hexToVec(controls.color)) in the tick function.  This initially did not result in the color picker transferring to the object, since color was being hardcoded to red in OpenGLRenderer.  To get around this, I created a new color parameter in the render function and used setGeometryColor(color) there, which fixed the problem.
+
+<img width="1280" height="694" alt="image" src="https://github.com/user-attachments/assets/664bb305-fa70-4e22-9539-1b169d16d510" />
+
+<img width="1280" height="693" alt="image" src="https://github.com/user-attachments/assets/43d693b0-3209-4bb5-aa90-11424773c082" />
+
+**Custom fragment shader:**
+I had the idea of using Perlin to create a shifting rainbow color across the object.  To do this, I first created a noise helper function that behaves like a hash (the output vec3 will be used in randomizing the gradients).  My 3D perlin function creates randomized gradients using the noise func for each 8 cells and calculates each surflet.  I then used a smooth fade function in 3-step interpolation to output the final float.  To further improve my choice of noise, I also created a small fbm function that will overlay multiple perlins using set amplitude and frequency, then summing the altered perlins in a for loop.  I then made a simple "rainbow" function that uses cos to output my desired rainbow gradient coloration.  Using u_Time as an input creates the ultimate color scrolling effect.
+
+**Custom vertex shader:**
+I wanted to make some sin-based vertex deformation that can be altered by frequency, so I created phase and displace floats that depend on frequency, speed, and amplitude parameters.  I then deformed the vertices by displacing object position along the y-axis.  To make the object rotate, I created a simple rotation matrix and then rotated the position over time about the x-axis.  When rendering an icosahedron, the sin-based deformation is a lot more visible than with the cube or square, which do not have subdivisions.
+
+<img width="1280" height="697" alt="image" src="https://github.com/user-attachments/assets/a1b85a85-37ee-4afe-afc1-96e6f52abeab" />
+
+<img width="1280" height="693" alt="image" src="https://github.com/user-attachments/assets/348d1c8a-94d4-4735-a69a-c6d9477c27f9" />
+
+*During the process I created multiple new uniforms, which I have set up in ShaderProgram.  This covers amplitude, frequency, and speed that I used in my vertex shader, as well as noise scale, strength, and speed that I used in my frag shader.  Importantly, I had to create a time uniform as well as some noise and time setting functions; in main I kept track of seconds elapsed since starting time, which I then used to set time for my custom shader.
+
+*I implemented the gui color control after I did the shaders, so it temporarily broke my custom shader (the object rendered completely white).  The solution was to just set geometry color with the control color like I had to do with lambert.  The color picker input isn't very useful with the custom shader regardless due to the color shifting.
+
+
 ## Objective
 - Check that the tools and build configuration we will be using for the class works.
 - Start learning Typescript and WebGL2

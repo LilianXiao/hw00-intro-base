@@ -1,4 +1,4 @@
-import {vec3} from 'gl-matrix';
+import {vec3, vec4} from 'gl-matrix';
 const Stats = require('stats-js');
 import * as DAT from 'dat.gui';
 import Icosphere from './geometry/Icosphere';
@@ -13,6 +13,7 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
   tesselations: 5,
+  color: '#ff0000',
   'Load Scene': loadScene, // A function pointer, essentially
 };
 
@@ -30,6 +31,17 @@ function loadScene() {
   cube.create();
 }
 
+// change hex from dat.GUI to a vec4 color
+function hexToVec(c: any): vec4 {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(c);
+  return vec4.fromValues(
+      parseInt(m[1], 16) / 255,
+      parseInt(m[2], 16) / 255,
+      parseInt(m[3], 16) / 255,
+      1.0
+  );
+}
+
 function main() {
   // Initial display for framerate
   const stats = Stats();
@@ -42,6 +54,8 @@ function main() {
   // Add controls to the gui
   const gui = new DAT.GUI();
   gui.add(controls, 'tesselations', 0, 8).step(1);
+  // add a color picker
+  gui.addColor(controls, 'color');
   gui.add(controls, 'Load Scene');
 
   // get canvas and webgl context
@@ -60,7 +74,7 @@ function main() {
   const camera = new Camera(vec3.fromValues(0, 0, 5), vec3.fromValues(0, 0, 0));
 
   const renderer = new OpenGLRenderer(canvas);
-    renderer.setClearColor(0.2, 0.2, 0.2, 1);
+  renderer.setClearColor(0.2, 0.2, 0.2, 1);
   gl.enable(gl.DEPTH_TEST);
 
   const lambert = new ShaderProgram([
@@ -73,12 +87,11 @@ function main() {
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/custom-frag.glsl'))
   ]);
 
-    let t0 = performance.now();
+  let t0 = performance.now();
   // This function will be called every frame
     function tick() {
-
     const now = performance.now();
-    const tSec = (now - t0) * 0.001;   // seconds since start
+    const tSec = (now - t0) * 0.001; // seconds since start
 
     camera.update();
     stats.begin();
@@ -90,16 +103,18 @@ function main() {
       prevTesselations = controls.tesselations;
       icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, prevTesselations);
       icosphere.create();
-        }
+    }
 
+    lambert.setGeometryColor(hexToVec(controls.color));
+    custom.setGeometryColor(hexToVec(controls.color));
     custom.setTime(tSec);
     custom.setNoise(0.25, 8.0, 2.0);
     custom.setNoiseFrag(2.5, 0.8, 2.0);
 
     renderer.render(camera, custom, [
-      icosphere,
+      //icosphere,
       //square,
-      //cube
+      cube
     ]);
     stats.end();
 
